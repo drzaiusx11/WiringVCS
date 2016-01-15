@@ -1,2 +1,2 @@
-# A2600
+# WiringVCS
 Arduino and Raspberry Pi compatible library for manipulating Atari 2600 cartridges
