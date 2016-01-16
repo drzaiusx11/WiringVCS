@@ -3,11 +3,12 @@
 
 #include "Cart.h"
 
-#define READ_DELAY 24
+#define READ_DELAY 45
+#define noop 
 
 // number of bytes for bank compares
 #define NCOMPARES 128
-
+/*
 #if defined(ARDUINO)
 	#include <Arduino.h>
 
@@ -37,7 +38,11 @@
 	#define	A10 20
 	#define	A11 21
 #else // Raspberry Pi
+*/
 	#include <wiringPi.h>
+
+	#define min(a,b) (((a)<(b))?(a):(b))
+	#define max(a,b) (((a)>(b))?(a):(b))
 
 	#define	GPIO_17 0
 	#define	GPIO_18 1
@@ -95,7 +100,13 @@
 	#define	A9 GPIO_20
 	#define	A10 GPIO_16
 	#define	A11 GPIO_12
-#endif
+
+//#endif
+
+/////////////////CART PINOUT/////////////////
+// GND.5V.A8.A9.A11.A10.EN.D7.D6.D5.D4.D3  //
+// A7..A6.A5.A4.A3..A2..A1.A0.D0.D1.D2.GND //
+/////////////////////////////////////////////
 
 class CartDumper {
 	public:

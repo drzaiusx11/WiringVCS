@@ -1,6 +1,12 @@
 #include "CartDumper.h"
 
 void CartDumper::setup() {
+	#ifndef ARDUINO
+	wiringPiSetup();
+	pinMode(BUFDIR, OUTPUT);
+	digitalWrite(BUFDIR, LOW);
+	#endif
+
 	pinMode(D0, INPUT);
 	pinMode(D1, INPUT);
 	pinMode(D2, INPUT);
@@ -23,13 +29,8 @@ void CartDumper::setup() {
 	pinMode(A10, OUTPUT);
 	pinMode(A11, OUTPUT);
 
-	pinMode (CS, OUTPUT);
+	pinMode(CS, OUTPUT);
 	digitalWrite(CS, HIGH);
-
-	#ifndef ARDUINO
-	pinMode(BUFDIR, OUTPUT);
-	digitalWrite(BUFDIR, LOW);
-	#endif
 }
 
 CartDumper::CartDumper() {
@@ -37,7 +38,7 @@ CartDumper::CartDumper() {
 }
 
 Cart CartDumper::findCart() {
-	return CartE0();
+	return Cart(1, 4096, Mapper::M_4K);
 }
 
 void CartDumper::setAddress(uint16_t addr) {
@@ -91,10 +92,10 @@ void CartDumper::accessHotspot(uint16_t addr) {
 
 uint16_t CartDumper::dump(Cart& cart, uint8_t* rom, uint16_t offset, uint16_t nbytes) {
 	uint16_t read = 0;
-	uint16_t startBank = (int)(offset / cart.bankSize); 
+	uint16_t startBank = offset > 0 ? (int)(offset / cart.bankSize) : 0; 
 	uint16_t endBank = min(cart.banks, (int)((offset + nbytes) / cart.bankSize)); 
+
 	bool firstRead = true;
-	
 	for(uint8_t bank = startBank; bank <= endBank; bank++) {
 		cart.selectBank(bank);
 		uint16_t start = firstRead ? offset % cart.bankSize : 0;
