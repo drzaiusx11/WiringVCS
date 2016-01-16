@@ -8,7 +8,7 @@
 
 // number of bytes for bank compares
 #define NCOMPARES 128
-/*
+
 #if defined(ARDUINO)
 	#include <Arduino.h>
 
@@ -38,7 +38,7 @@
 	#define	A10 20
 	#define	A11 21
 #else // Raspberry Pi
-*/
+
 	#include <wiringPi.h>
 
 	#define min(a,b) (((a)<(b))?(a):(b))
@@ -101,7 +101,7 @@
 	#define	A10 GPIO_16
 	#define	A11 GPIO_12
 
-//#endif
+#endif
 
 /////////////////CART PINOUT/////////////////
 // GND.5V.A8.A9.A11.A10.EN.D7.D6.D5.D4.D3  //
