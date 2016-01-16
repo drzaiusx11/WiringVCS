@@ -99,8 +99,8 @@ uint16_t CartDumper::dump(Cart& cart, uint8_t* rom, uint16_t offset, uint16_t nb
 	for(uint8_t bank = startBank; bank <= endBank; bank++) {
 		cart.selectBank(bank);
 		uint16_t start = firstRead ? offset % cart.bankSize : 0;
-		uint16_t remainder = nbytes - (bank * cart.bankSize - start);
-		read += readNBytes(rom + (start + bank * cart.bankSize), start, min(remainder, cart.bankSize - 1));
+		uint16_t remainder = nbytes - read;
+		read += readNBytes(rom + read, start, min(remainder, cart.bankSize));
 		firstRead = false;
 	}
 

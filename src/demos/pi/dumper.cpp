@@ -4,18 +4,21 @@
 #include <stdio.h>
 #include "WiringVCS.h"
 
-int main(void) {
-	uint8_t rom[4096];
+#define NBYTES 8
 
-	FILE* file = fopen("rom.bin", "wb");
+int main(void) {
 
 	VCS.setup();
 
 	Cart cart = VCS.findCart();
 
-	VCS.dump(cart, rom, 0, cart.size);
+	uint8_t romPartial[NBYTES];
+	FILE* file = fopen("rom.bin", "wb");
 
-	fwrite(rom, 1, cart.size, file);
+	for (int offset = 0; offset < cart.size; offset += NBYTES) {
+		VCS.dump(cart, romPartial, offset, NBYTES);
+		fwrite(romPartial, 1, NBYTES, file);
+	}
 
 	fclose(file);
 
