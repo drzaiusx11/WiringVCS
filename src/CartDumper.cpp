@@ -37,8 +37,8 @@ CartDumper::CartDumper() {
 	setup();
 }
 
-Cart CartDumper::findCart() {
-	return Cart(1, 4096, Mapper::M_4K);
+Cart* CartDumper::findCart() {
+	return new CartF8();
 }
 
 void CartDumper::setAddress(uint16_t addr) {
@@ -57,7 +57,22 @@ void CartDumper::setAddress(uint16_t addr) {
 	delayMicroseconds(READ_DELAY);
 }
 
-uint8_t CartDumper::readByte(uint16_t addr) {
+bool inArray(uint16_t needle, uint16_t arr[], uint16_t len) {
+	bool found = false;
+	for (int i = 0; i < len; i++) {
+		if (arr[i] == needle) {
+			found = true;
+			break;
+		}
+	}
+	return found;
+}
+
+uint8_t CartDumper::readByte(Cart& cart, uint16_t addr) {
+	// don't return data for hotspots to prevent unwanted bankswitches
+	if (inArray(addr, cart.hotspots, cart.hotspotCount)) {
+		return 0;
+	} 
 	setAddress(addr);
 
 	uint8_t d0 = digitalRead(D0);
@@ -74,9 +89,9 @@ uint8_t CartDumper::readByte(uint16_t addr) {
 	return val;
 }
 
-uint16_t CartDumper::readNBytes(uint8_t* buf, uint16_t addr, uint16_t nbytes) {
+uint16_t CartDumper::readNBytes(Cart& cart, uint8_t* buf, uint16_t addr, uint16_t nbytes) {
 	for(int i = 0; i < nbytes; i++) {
-		buf[i] = readByte(addr + i); 
+		buf[i] = readByte(cart, addr + i); 
 	}
 
 	return nbytes;
@@ -93,14 +108,15 @@ void CartDumper::accessHotspot(uint16_t addr) {
 uint16_t CartDumper::dump(Cart& cart, uint8_t* rom, uint16_t offset, uint16_t nbytes) {
 	uint16_t read = 0;
 	uint16_t startBank = offset > 0 ? (int)(offset / cart.bankSize) : 0; 
-	uint16_t endBank = min(cart.banks, (int)((offset + nbytes) / cart.bankSize)); 
+	uint16_t endBank = min(cart.bankCount - 1, (int)((offset + nbytes) / cart.bankSize)); 
 
 	bool firstRead = true;
 	for(uint8_t bank = startBank; bank <= endBank; bank++) {
 		cart.selectBank(bank);
 		uint16_t start = firstRead ? offset % cart.bankSize : 0;
 		uint16_t remainder = nbytes - read;
-		read += readNBytes(rom + read, start, min(remainder, cart.bankSize));
+		
+		read += readNBytes(cart, rom + read, start, min(remainder, cart.bankSize));
 		firstRead = false;
 	}
 

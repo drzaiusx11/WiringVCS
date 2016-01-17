@@ -1,22 +1,21 @@
-#ifndef ARDUINO
-
-#include <stdlib.h>
-#include <stdio.h>
+#include <cstdio>
 #include "WiringVCS.h"
 
-#define NBYTES 8
+#define NBYTES 32
 
 int main(void) {
 
 	VCS.setup();
 
-	Cart cart = VCS.findCart();
+	Cart* cart = VCS.findCart();
 
+	// array to save a rom segment in
 	uint8_t romPartial[NBYTES];
+
 	FILE* file = fopen("rom.bin", "wb");
 
-	for (int offset = 0; offset < cart.size; offset += NBYTES) {
-		VCS.dump(cart, romPartial, offset, NBYTES);
+	for (int offset = 0; offset < cart->size; offset += NBYTES) {
+		VCS.dump(*cart, romPartial, offset, NBYTES);
 		fwrite(romPartial, 1, NBYTES, file);
 	}
 
@@ -25,4 +24,3 @@ int main(void) {
 	return 0;
 }
 
-#endif

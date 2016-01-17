@@ -3,7 +3,7 @@
 
 #include "Cart.h"
 
-#define READ_DELAY 45
+#define READ_DELAY 25
 #define noop 
 
 // number of bytes for bank compares
@@ -112,10 +112,10 @@ class CartDumper {
 	public:
 	CartDumper();
 	static void setup();
-	static Cart findCart();
+	static Cart* findCart();
 	static uint16_t dump(Cart& cart, uint8_t* rom, uint16_t offset, uint16_t nbytes);
-	static uint8_t readByte(uint16_t addr);
-	static uint16_t readNBytes(uint8_t* buf, uint16_t addr, uint16_t nbytes);
+	static uint8_t readByte(Cart& cart, uint16_t addr);
+	static uint16_t readNBytes(Cart& cart, uint8_t* buf, uint16_t addr, uint16_t nbytes);
 	static void setAddress(uint16_t addr);
 	static void accessHotspot(uint16_t addr);
 };
