@@ -2,7 +2,6 @@
 #define Cart_H
 
 #include <cinttypes>
-#include <cstdio>
 
 enum Mapper {
 	M_2K,
