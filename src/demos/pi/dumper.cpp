@@ -10,16 +10,18 @@ int main(void) {
 	Cart* cart = VCS.findCart();
 
 	// array to save a rom segment in
-	uint8_t romPartial[NBYTES];
+	uint8_t romSegment[NBYTES];
 
 	FILE* file = fopen("rom.bin", "wb");
 
 	for (int offset = 0; offset < cart->size; offset += NBYTES) {
-		VCS.dump(*cart, romPartial, offset, NBYTES);
-		fwrite(romPartial, 1, NBYTES, file);
+		VCS.dump(*cart, romSegment, offset, NBYTES);
+		fwrite(romSegment, 1, NBYTES, file);
 	}
 
 	fclose(file);
+
+	delete cart;
 
 	return 0;
 }

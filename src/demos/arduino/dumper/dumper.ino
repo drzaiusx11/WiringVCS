@@ -5,16 +5,17 @@
 void setup() {
   VCS.setup();
   
-  Cart cart = VCS.findCart();
+  Cart* cart = VCS.findCart();
 
-  uint8_t partialRom[NBYTES];
+  uint8_t romSegment[NBYTES];
 
-  for (int offset = 0; offset < cart.size; offset += NBYTES) {
-    VCS.dump(cart, partialRom, offset, NBYTES);
-    Serial.write(partialRom, NBYTES);
+  for (int offset = 0; offset < cart->size; offset += NBYTES) {
+    VCS.dump(*cart, romSegment, offset, NBYTES);
+    Serial.write(romSegment, NBYTES);
   }
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+  // nothing to see here folks...
 }
+

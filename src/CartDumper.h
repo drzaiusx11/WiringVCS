@@ -1,6 +1,7 @@
 #ifndef CartDumper_H
 #define CartDumper_H
 
+#include <cstdio>
 #include "Cart.h"
 
 #define READ_DELAY 25

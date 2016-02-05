@@ -38,7 +38,7 @@ CartDumper::CartDumper() {
 }
 
 Cart* CartDumper::findCart() {
-	return new CartF8();
+	return new CartE7();
 }
 
 void CartDumper::setAddress(uint16_t addr) {
@@ -70,7 +70,7 @@ bool inArray(uint16_t needle, uint16_t arr[], uint16_t len) {
 
 uint8_t CartDumper::readByte(Cart& cart, uint16_t addr) {
 	// don't return data for hotspots to prevent unwanted bankswitches
-	if (inArray(addr, cart.hotspots, cart.hotspotCount)) {
+	if (inArray(addr, cart.hotspotList, cart.hotspotCount)) {
 		return 0;
 	} 
 	setAddress(addr);
@@ -105,21 +105,28 @@ void CartDumper::accessHotspot(uint16_t addr) {
 	delayMicroseconds(READ_DELAY);
 }
 
-uint16_t CartDumper::dump(Cart& cart, uint8_t* rom, uint16_t offset, uint16_t nbytes) {
-	uint16_t read = 0;
-	uint16_t startBank = offset > 0 ? (int)(offset / cart.bankSize) : 0; 
+uint16_t CartDumper::dump(Cart& cart, uint8_t* romBuffer, uint16_t offset, uint16_t nbytes) {
+	uint16_t bytesRead = 0;
+	uint16_t startBank = cart.getBank(offset);
 	uint16_t endBank = min(cart.bankCount - 1, (int)((offset + nbytes) / cart.bankSize)); 
 
 	bool firstRead = true;
-	for(uint8_t bank = startBank; bank <= endBank; bank++) {
-		cart.selectBank(bank);
-		uint16_t start = firstRead ? offset % cart.bankSize : 0;
-		uint16_t remainder = nbytes - read;
+	for(uint8_t bankNo = startBank; bankNo <= endBank; bankNo++) {
+		uint16_t bytesRemaining = nbytes - bytesRead;
+
+		if (bytesRemaining == 0) continue;
+
+		if (cart.selectedBank != bankNo) {
+			cart.selectBank(bankNo);
+		}
+
+		uint16_t startAddress = cart.bankAddress + (firstRead ? offset % cart.bankSize : 0);
 		
-		read += readNBytes(cart, rom + read, start, min(remainder, cart.bankSize));
+		bytesRead += readNBytes(cart, romBuffer + bytesRead, startAddress, min(bytesRemaining, cart.bankSize));
+
 		firstRead = false;
 	}
 
-	return read;
+	return bytesRead;
 }
 
