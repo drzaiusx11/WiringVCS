@@ -1,3 +1,4 @@
+#ifndef ARDUINO
 #include <cstdio>
 #include "WiringVCS.h"
 
@@ -26,3 +27,4 @@ int main(void) {
 	return 0;
 }
 
+#endif
