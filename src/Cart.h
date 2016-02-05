@@ -1,7 +1,7 @@
 #ifndef Cart_H
 #define Cart_H
 
-#include <cinttypes>
+#include <inttypes.h>
 
 enum Mapper {
 	M_2K,
