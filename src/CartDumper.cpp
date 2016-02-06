@@ -328,57 +328,34 @@ bool CartDumper::isFE() {
 	uint8_t bank0[NCOMPARES];
 	uint8_t bank1[NCOMPARES];
 
-	// de-select cart
-	digitalWrite(CS, LOW);
+	// grab bank 0 and 1
+	for (int i = 0; i <= 1; i++) {
+		// de-select cart
+		digitalWrite(CS, LOW);
 
-	#ifndef ARDUINO
-	// reverse buffer to WRITE mode
-	digitalWrite(BUFDIR, HIGH);
-	#endif
+		#ifndef ARDUINO
+		// reverse buffer to WRITE mode
+		digitalWrite(BUFDIR, HIGH);
+		#endif
 
-	pinMode(D5, OUTPUT);
-	digitalWrite(D5, HIGH);
+		pinMode(D5, OUTPUT);
+		digitalWrite(D5, i);
 
-	// set hotspot
-	setAddress(0x1FE);
-	delayMicroseconds(READ_DELAY);
+		// set hotspot
+		setAddress(0x1FE);
+		delayMicroseconds(READ_DELAY);
 
-	// restore D5 as input, select chip
-	digitalWrite(CS, HIGH);
-	pinMode(D5, INPUT);
+		// restore D5 as input, select chip
+		digitalWrite(CS, HIGH);
+		pinMode(D5, INPUT);
 
-	#ifndef ARDUINO
-	// restore buffer as READ mode
-	digitalWrite(BUFDIR, LOW);
-	#endif
+		#ifndef ARDUINO
+		// restore buffer as READ mode
+		digitalWrite(BUFDIR, LOW);
+		#endif
 
-	readNBytes(NULL, bank0, 0, NCOMPARES);
-
-	// de-select cart
-	digitalWrite(CS, LOW);
-
-	#ifndef ARDUINO
-	// reverse buffer to WRITE mode
-	digitalWrite(BUFDIR, HIGH);
-	#endif
-
-	pinMode(D5, OUTPUT);
-	digitalWrite(D5, LOW);
-
-	// set hotspot
-	setAddress(0x1FE);
-	delayMicroseconds(READ_DELAY);
-
-	// restore D5 as input, select chip
-	digitalWrite(CS, HIGH);
-	pinMode(D5, INPUT);
-
-	#ifndef ARDUINO
-	// restore buffer as READ mode
-	digitalWrite(BUFDIR, LOW);
-	#endif
-
-	readNBytes(NULL, bank1, 0, NCOMPARES);
+		readNBytes(NULL, i == 0 ? bank1 : bank0, 0, NCOMPARES);
+	}
 
 	bool isFE = strncmp((char*)bank0, (char*)bank1, NCOMPARES) != 0;
 	return isFE;

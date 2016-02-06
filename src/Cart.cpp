@@ -46,6 +46,8 @@ uint16_t CartFE::selectBank(uint8_t bankNo) {
 		d5 = 1;
 	}
 
+	selectedBank = bankNo;
+
 	// de-select cart
 	digitalWrite(CS, LOW);
 	delayMicroseconds(READ_DELAY);
