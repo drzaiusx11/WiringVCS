@@ -110,6 +110,9 @@ Cart* CartDumper::findCart() {
 	case M_FE:
 		cart = new CartFE();
 	break;
+	case M_2K:
+		cart = new Cart(0x800, 1, 0, M_2K);
+	break;
 	default: // 4K
 		cart = new Cart(0x1000, 1, 0, M_4K);
 	}
@@ -176,7 +179,9 @@ uint16_t CartDumper::readNBytes(Cart* cart, uint8_t* buf, uint16_t addr, uint16_
 void CartDumper::accessHotspot(uint16_t addr) {
 	digitalWrite(CS, LOW);
 	delayMicroseconds(READ_DELAY);
+
 	setAddress(addr);
+
 	digitalWrite(CS, HIGH);
 	delayMicroseconds(READ_DELAY);
 }
@@ -268,7 +273,7 @@ bool CartDumper::isE7() {
 	accessHotspot(0xFE0);
 
 	// read bank 0
-	readNBytes(NULL, bank0, 0, NCOMPARES);
+	readNBytes(NULL, bank0, 256, NCOMPARES);
 
 	// last 2k bank starts at 0x800, but that points to RAM
 	// so start at first non-ram address
@@ -278,7 +283,7 @@ bool CartDumper::isE7() {
 	accessHotspot(0xFE1);
 
 	// read bank 1
-	readNBytes(NULL, bank1, 0, NCOMPARES);
+	readNBytes(NULL, bank1, 256, NCOMPARES);
 
 	// in E0, the last 0xA00 - 0xFFF never changes
 	readNBytes(NULL, bank7Verify, 0xA00, NCOMPARES);
@@ -293,9 +298,9 @@ bool CartDumper::isF4() {
 	uint8_t bank0[NCOMPARES];
 	uint8_t bank1[NCOMPARES];
 	accessHotspot(0xFF4); // select bank 0
-	readNBytes(NULL, bank0, 0, NCOMPARES);
+	readNBytes(NULL, bank0, 256, NCOMPARES);
 	accessHotspot(0xFF5); // select bank 1
-	readNBytes(NULL, bank1, 0, NCOMPARES);
+	readNBytes(NULL, bank1, 256, NCOMPARES);
 	bool isF4 = strncmp((char*)bank0, (char*)bank1, NCOMPARES) != 0;
 	return isF4;
 }
@@ -305,9 +310,9 @@ bool CartDumper::isF6() {
 	uint8_t bank0[NCOMPARES];
 	uint8_t bank1[NCOMPARES];
 	accessHotspot(0xFF6); // select bank 0
-	readNBytes(NULL, bank0, 0, NCOMPARES);
+	readNBytes(NULL, bank0, 256, NCOMPARES);
 	accessHotspot(0xFF7); // select bank 1
-	readNBytes(NULL, bank1, 0, NCOMPARES);
+	readNBytes(NULL, bank1, 256, NCOMPARES);
 	bool isF6 = strncmp((char*)bank0, (char*)bank1, NCOMPARES) != 0;
 	return isF6;
 }
@@ -317,9 +322,9 @@ bool CartDumper::isF8() {
 	uint8_t bank0[NCOMPARES];
 	uint8_t bank1[NCOMPARES];
 	accessHotspot(0xFF8); // select bank 0
-	readNBytes(NULL, bank0, 0, NCOMPARES);
+	readNBytes(NULL, bank0, 256, NCOMPARES);
 	accessHotspot(0xFF9); // select bank 1
-	readNBytes(NULL, bank1, 0, NCOMPARES);
+	readNBytes(NULL, bank1, 256, NCOMPARES);
 	bool isF8 = strncmp((char*)bank0, (char*)bank1, NCOMPARES) != 0;
 	return isF8;
 }
