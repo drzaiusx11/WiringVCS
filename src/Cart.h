@@ -108,6 +108,36 @@ class CartE7 : public Cart {
 	virtual uint16_t selectBank(uint8_t bank);
 };
 
+class CartF4 : public Cart {
+	public:
+	CartF4()
+	: Cart(
+		4096,	// banksize
+		8,	// # of banks
+		8,	// # of hotspots
+		Mapper::M_F4
+	) {
+		for(int i = 0; i < hotspotCount; i++) {
+			hotspotList[i] = 0xFF4 + i;
+		}
+	}
+};
+
+class CartF6 : public Cart {
+	public:
+	CartF6()
+	: Cart(
+		4096,	// banksize
+		4,	// # of banks
+		4,	// # of hotspots
+		Mapper::M_F6
+	) {
+		for(int i = 0; i < hotspotCount; i++) {
+			hotspotList[i] = 0xFF6 + i;
+		}
+	}
+};
+
 class CartF8 : public Cart {
 	public:
 	CartF8()
@@ -120,6 +150,18 @@ class CartF8 : public Cart {
 		hotspotList[0] = 0xFF8;
 		hotspotList[1] = 0xFF9;
 	}
+};
+
+class CartFE : public Cart {
+	public:
+	CartFE()
+	: Cart(
+		4096,	// banksize
+		2,	// # of banks
+		0,	// # of hotspots
+		Mapper::M_FE
+	) {}
+	virtual uint16_t selectBank(uint8_t bank);
 };
 
 #endif //Cart_H

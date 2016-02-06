@@ -37,3 +37,42 @@ uint16_t CartE7::selectBank(uint8_t bankNo) {
 	return bankAddress;
 }
 
+uint16_t CartFE::selectBank(uint8_t bankNo) {
+	// only allow valid bankNo values
+	if (bankNo < 0 || bankNo > 1) return -1;
+
+	uint8_t d5 = 0;
+	if (bankNo == 0) {
+		d5 = 1;
+	}
+
+	// de-select cart
+	digitalWrite(CS, LOW);
+	delayMicroseconds(READ_DELAY);
+
+	#ifndef ARDUINO
+	// reverse buffer (make D0 - D7 writable)
+	digitalWrite(BUFDIR, HIGH);
+	delayMicroseconds(READ_DELAY);
+	#endif
+
+	pinMode(D5, OUTPUT);
+	digitalWrite(D5, d5);
+	delayMicroseconds(READ_DELAY);
+
+	// set hotspot
+	CartDumper::setAddress(0x1FE);
+	delayMicroseconds(READ_DELAY);
+
+	// select cart
+	digitalWrite(CS, HIGH);
+	delayMicroseconds(READ_DELAY);
+	pinMode(D5, INPUT);
+
+	#ifndef ARDUINO
+	// restore buffer as read-only
+	digitalWrite(BUFDIR, LOW);
+	delayMicroseconds(READ_DELAY);
+	#endif
+}
+

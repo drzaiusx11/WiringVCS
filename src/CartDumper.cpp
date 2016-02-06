@@ -78,9 +78,9 @@ Mapper CartDumper::detectMapper() {
 	if (isF8()) {
 		return M_F8;
 	}
-//	if (isFE()) {
-//		return M_FE;
-//	}
+	if (isFE()) {
+		return M_FE;
+	}
 	if (is2K()) {
 		return M_2K;
 	}
@@ -98,17 +98,18 @@ Cart* CartDumper::findCart() {
 	case M_E7:
 		cart = new CartE7();
 	break;
-//	case M_F4:
-//		c = new CartF4();
-//	break;
-//	case M_F6:
-//	break;
+	case M_F4:
+		cart = new CartF4();
+	break;
+	case M_F6:
+		cart = new CartF6();
+	break;
 	case M_F8:
 		cart = new CartF8();
 	break;
-//	case M_FE:
-//		cart = new CartFE();
-//	break;
+	case M_FE:
+		cart = new CartFE();
+	break;
 	default: // 4K
 		cart = new Cart(0x1000, 1, 0, M_4K);
 	}
@@ -321,6 +322,66 @@ bool CartDumper::isF8() {
 	readNBytes(NULL, bank1, 0, NCOMPARES);
 	bool isF8 = strncmp((char*)bank0, (char*)bank1, NCOMPARES) != 0;
 	return isF8;
+}
+
+bool CartDumper::isFE() {
+	uint8_t bank0[NCOMPARES];
+	uint8_t bank1[NCOMPARES];
+
+	// de-select cart
+	digitalWrite(CS, LOW);
+
+	#ifndef ARDUINO
+	// reverse buffer to WRITE mode
+	digitalWrite(BUFDIR, HIGH);
+	#endif
+
+	pinMode(D5, OUTPUT);
+	digitalWrite(D5, HIGH);
+
+	// set hotspot
+	setAddress(0x1FE);
+	delayMicroseconds(READ_DELAY);
+
+	// restore D5 as input, select chip
+	digitalWrite(CS, HIGH);
+	pinMode(D5, INPUT);
+
+	#ifndef ARDUINO
+	// restore buffer as READ mode
+	digitalWrite(BUFDIR, LOW);
+	#endif
+
+	readNBytes(NULL, bank0, 0, NCOMPARES);
+
+	// de-select cart
+	digitalWrite(CS, LOW);
+
+	#ifndef ARDUINO
+	// reverse buffer to WRITE mode
+	digitalWrite(BUFDIR, HIGH);
+	#endif
+
+	pinMode(D5, OUTPUT);
+	digitalWrite(D5, LOW);
+
+	// set hotspot
+	setAddress(0x1FE);
+	delayMicroseconds(READ_DELAY);
+
+	// restore D5 as input, select chip
+	digitalWrite(CS, HIGH);
+	pinMode(D5, INPUT);
+
+	#ifndef ARDUINO
+	// restore buffer as READ mode
+	digitalWrite(BUFDIR, LOW);
+	#endif
+
+	readNBytes(NULL, bank1, 0, NCOMPARES);
+
+	bool isFE = strncmp((char*)bank0, (char*)bank1, NCOMPARES) != 0;
+	return isFE;
 }
 
 bool CartDumper::is2K() {

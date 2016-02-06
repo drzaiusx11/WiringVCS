@@ -125,6 +125,7 @@ class CartDumper {
 	static bool isF4();
 	static bool isF6();
 	static bool isF8();
+	static bool isFE();
 	static bool is2K();
 };
 
