@@ -2,13 +2,17 @@
 #define Cart_H
 
 #include <inttypes.h>
+#include <string.h>
 
 enum Mapper {
 	M_2K,
 	M_4K,
 	M_E0,
 	M_E7,
-	M_F8
+	M_F4,
+	M_F6,
+	M_F8,
+	M_FE
 };
 
 class Cart {
@@ -55,11 +59,11 @@ class Cart {
 //////////////////////////////////////////////////
 // Cart E0
 //
-// 8 1K banks visable via 4 "slices"
+// 8 1K banks visable via 4 (0 - 3) "slices"
 // slice 0 - 2 can access any 1K block via hotspots:
-// 0xFE0 - 0xFE7 selects bank# in "slice" 0
-// 0xFE8 - 0xFEF selects bank# in "slice" 1
-// 0xFF0 - 0xFF7 selects bank# in "slice" 2
+// 0xFE0 - 0xFE7 (0 - 6) selects bank# in "slice" 0
+// 0xFE8 - 0xFEF (0 - 6) selects bank# in "slice" 1
+// 0xFF0 - 0xFF7 (0 - 6) selects bank# in "slice" 2
 // slice 3 is static and always points to bank 7
 //////////////////////////////////////////////////
 class CartE0 : public Cart {
@@ -80,7 +84,8 @@ class CartE0 : public Cart {
 //////////////////////////////////////////////////
 // Cart E7
 //
-// 7 2K banks
+// 8 2K banks with seletable RAM
+//
 // 0xFE0 through 0xFE6 selects bank 0 - 6 into 0-0x7FF
 // 0xFE7 enables 1K of the 2K RAM into 0-0x7FF
 // 0x800 through 0x9FF has additional RAM (512K - 256K Write/256K Read)

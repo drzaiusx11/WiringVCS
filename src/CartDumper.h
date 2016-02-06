@@ -112,12 +112,20 @@ class CartDumper {
 	public:
 	CartDumper();
 	static void setup();
+	static const char* getMapperName(Mapper mapper);
+	static Mapper detectMapper();
 	static Cart* findCart();
 	static uint16_t dump(Cart& cart, uint8_t* rom, uint16_t offset, uint16_t nbytes);
-	static uint8_t readByte(Cart& cart, uint16_t addr);
-	static uint16_t readNBytes(Cart& cart, uint8_t* buf, uint16_t addr, uint16_t nbytes);
+	static uint8_t readByte(Cart* cart, uint16_t addr);
+	static uint16_t readNBytes(Cart* cart, uint8_t* buf, uint16_t addr, uint16_t nbytes);
 	static void setAddress(uint16_t addr);
 	static void accessHotspot(uint16_t addr);
+	static bool isE0();
+	static bool isE7();
+	static bool isF4();
+	static bool isF6();
+	static bool isF8();
+	static bool is2K();
 };
 
 #endif //CartDumper_H
