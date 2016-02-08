@@ -2,7 +2,7 @@
 Arduino and Raspberry Pi compatible library for manipulating Atari 2600 cartridges
 
 Examples:
-Dump the entire contents of a cartridge's ROM to the serial port on an arduino:
+Dump the entire contents of a cartridge's ROM to the serial port on an arduino, 32 bytes at a time:
 ```c
 #include <WiringVCS.h>
 
