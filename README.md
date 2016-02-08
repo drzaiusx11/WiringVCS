@@ -1,6 +1,14 @@
 # WiringVCS
 Arduino and Raspberry Pi compatible library for manipulating Atari 2600 cartridges
 
+##### Setup
+###### Making a harness to attach cartridges to your arduino
+```
+/////////////////CART PINOUT/////////////////
+// GND.5V.A8.A9.A11.A10.EN.D7.D6.D5.D4.D3  //
+// A7..A6.A5.A4.A3..A2..A1.A0.D0.D1.D2.GND //
+/////////////////////////////////////////////
+```
 ##### Example 1:
 Print out some details about the attached cartridge
 ```c
