@@ -55,6 +55,9 @@ const char* CartDumper::getMapperName(Mapper mapper) {
 	case M_F8:
 		return "F8";
 	break;
+	case M_FA:
+		return "FA";
+	break;
 	case M_FE:
 		return "FE";
 	break;
@@ -77,6 +80,9 @@ Mapper CartDumper::detectMapper() {
 	}
 	if (isF6(ramSize)) {
 		return M_F6;
+	}
+	if (isFA(ramSize)) {
+		return M_FA;
 	}
 	if (isF8(ramSize)) {
 		return M_F8;
@@ -354,6 +360,18 @@ bool CartDumper::isF6(uint16_t ramSize) {
 }
 
 // should be called after isF6, due to overlap
+bool CartDumper::isFA(uint16_t ramSize) {
+	uint8_t bank1[NCOMPARES];
+	uint8_t bank2[NCOMPARES];
+	accessHotspot(0xFF9); // select bank 1
+	readNBytes(NULL, bank1, ramSize*2, NCOMPARES);
+	accessHotspot(0xFFA); // select bank 1
+	readNBytes(NULL, bank2, ramSize*2, NCOMPARES);
+	bool isFA = strncmp((char*)bank1, (char*)bank2, NCOMPARES) != 0;
+	return isFA;
+}
+
+// should be called after isFA, due to overlap
 bool CartDumper::isF8(uint16_t ramSize) {
 	uint8_t bank0[NCOMPARES];
 	uint8_t bank1[NCOMPARES];

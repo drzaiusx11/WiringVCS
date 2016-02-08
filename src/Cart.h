@@ -12,6 +12,7 @@ enum Mapper {
 	M_F4,
 	M_F6,
 	M_F8,
+	M_FA,
 	M_FE
 };
 
@@ -155,6 +156,21 @@ class CartF8 : public Cart {
 	) {
 		hotspotList[0] = 0xFF8;
 		hotspotList[1] = 0xFF9;
+	}
+};
+
+class CartFA : public Cart {
+	public:
+	CartFA()
+	: Cart(
+		4096,	// banksize
+		3,	// # of banks
+		3,	// # of hotspots
+		Mapper::M_FA
+	) {
+		hotspotList[0] = 0xFF8;
+		hotspotList[1] = 0xFF9;
+		hotspotList[2] = 0xFFA;
 	}
 };
 

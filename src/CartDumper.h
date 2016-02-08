@@ -129,6 +129,7 @@ class CartDumper {
 	static bool isF4(uint16_t ramSize);
 	static bool isF6(uint16_t ramSize);
 	static bool isF8(uint16_t ramSize);
+	static bool isFA(uint16_t ramSize);
 	static bool isFE(uint16_t ramSize);
 	static bool is2K(uint16_t ramSize);
 };
