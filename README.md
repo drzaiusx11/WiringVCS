@@ -3,12 +3,22 @@ Arduino and Raspberry Pi compatible library for manipulating Atari 2600 cartridg
 
 ##### Setup
 ###### Making a harness to attach cartridges to your arduino
+Pinout of a VCS cartridge, the bottom facing you with the label facing up:
 ```
-/////////////////CART PINOUT/////////////////
-// GND.5V.A8.A9.A11.A10.EN.D7.D6.D5.D4.D3  //
-// A7..A6.A5.A4.A3..A2..A1.A0.D0.D1.D2.GND //
-/////////////////////////////////////////////
++--------------------LABEL SIDE-------------------+
+| D03 D04 D05 D06 D07 CSE A10 A11 A09 A08 VCC GND |
+| GND D02 D01 D00 A00 A01 A02 A03 A04 A05 A06 A07 |
++-------------------------------------------------+
 ```
+Using an old floppy disk cable or 2x24 0.1" edge connector (search ebay), 
+attach it to the cartridge and run a wire to each lead.  Attach each wire to an IO
+pin on your arduino noting which IO number corresponds to which pinout from the VCS.
+
+Edit WiringVCS/CartDumper.h to have each of the following match the IO #s on your arduino:
+A0-A11, CS, D0-D7. Additionally attach GNDs from the cart to GND on your arduino. VCC on the 
+cart should be connected to 5V on your arduino.
+
+Then load up an example and give it a go!
 ##### Example 1:
 Print out some details about the attached cartridge
 ```c
