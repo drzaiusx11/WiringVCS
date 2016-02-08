@@ -38,6 +38,7 @@
 	#define	A10 20
 	#define	A11 21
 #else // Raspberry Pi
+	#define RPI
 
 	#include <wiringPi.h>
 
@@ -118,15 +119,18 @@ class CartDumper {
 	static uint16_t dump(Cart& cart, uint8_t* rom, uint16_t offset, uint16_t nbytes);
 	static uint8_t readByte(Cart* cart, uint16_t addr);
 	static uint16_t readNBytes(Cart* cart, uint8_t* buf, uint16_t addr, uint16_t nbytes);
+	static void writeData(uint8_t data, uint16_t addr);
+	static void setDataDir(uint8_t dir);
 	static void setAddress(uint16_t addr);
+	static void setData(uint8_t value);
 	static void accessHotspot(uint16_t addr);
-	static bool isE0();
-	static bool isE7();
-	static bool isF4();
-	static bool isF6();
-	static bool isF8();
-	static bool isFE();
-	static bool is2K();
+	static bool isE0(uint16_t ramSize);
+	static bool isE7(uint16_t ramSize);
+	static bool isF4(uint16_t ramSize);
+	static bool isF6(uint16_t ramSize);
+	static bool isF8(uint16_t ramSize);
+	static bool isFE(uint16_t ramSize);
+	static bool is2K(uint16_t ramSize);
 };
 
 #endif //CartDumper_H

@@ -1,7 +1,8 @@
 #include "CartDumper.h"
+#include <stdio.h>
 
 void CartDumper::setup() {
-	#ifndef ARDUINO
+	#ifdef RPI
 	wiringPiSetup();
 	pinMode(BUFDIR, OUTPUT);
 	digitalWrite(BUFDIR, LOW);
@@ -63,25 +64,27 @@ const char* CartDumper::getMapperName(Mapper mapper) {
 }
 
 Mapper CartDumper::detectMapper() {
-	if (isE0()) {
+	uint16_t ramSize = Cart::getRAMSize();
+
+	if (isE0(ramSize)) {
 		return M_E0;
 	}
-	if (isE7()) {
+	if (isE7(ramSize)) {
 		return M_E7;
 	}
-	if (isF4()) {
+	if (isF4(ramSize)) {
 		return M_F4;
 	}
-	if (isF6()) {
+	if (isF6(ramSize)) {
 		return M_F6;
 	}
-	if (isF8()) {
+	if (isF8(ramSize)) {
 		return M_F8;
 	}
-	if (isFE()) {
+	if (isFE(ramSize)) {
 		return M_FE;
 	}
-	if (is2K()) {
+	if (is2K(ramSize)) {
 		return M_2K;
 	}
 	return M_4K; // default to 4k for unknowns
@@ -118,6 +121,39 @@ Cart* CartDumper::findCart() {
 	}
 
 	return cart;
+}
+
+void CartDumper::writeData(uint8_t data, uint16_t addr) {
+	setAddress(addr);
+	setData(data);
+	delayMicroseconds(READ_DELAY);
+}
+
+void CartDumper::setDataDir(uint8_t dir) {
+	#ifdef RPI 
+	uint8_t bufferDir = (dir == OUTPUT) ? HIGH : LOW;
+	digitalWrite(BUFDIR, bufferDir);
+	#endif
+	pinMode(D0, dir);
+	pinMode(D1, dir);
+	pinMode(D2, dir);
+	pinMode(D3, dir);
+	pinMode(D4, dir);
+	pinMode(D5, dir);
+	pinMode(D6, dir);
+	pinMode(D7, dir);
+}
+
+void CartDumper::setData(uint8_t value) {
+	digitalWrite(D7, 0x1 & (value >> 7));
+	digitalWrite(D6, 0x1 & (value >> 6));
+	digitalWrite(D5, 0x1 & (value >> 5));
+	digitalWrite(D4, 0x1 & (value >> 4));
+	digitalWrite(D3, 0x1 & (value >> 3));
+	digitalWrite(D2, 0x1 & (value >> 2));
+	digitalWrite(D1, 0x1 & (value >> 1));
+	digitalWrite(D0, 0x1 & value);
+	delayMicroseconds(READ_DELAY);
 }
 
 void CartDumper::setAddress(uint16_t addr) {
@@ -222,7 +258,7 @@ uint16_t CartDumper::dump(Cart& cart, uint8_t* romBuffer, uint16_t offset, uint1
 // +------------------+
 // | slot 3 (C00-FFF) | (always contains last 1k rom bank of the 8k)
 // +------------------+
-bool CartDumper::isE0() {  
+bool CartDumper::isE0(uint16_t ramSize) {  
 	uint8_t bank0[NCOMPARES];
 	uint8_t bank6[NCOMPARES];
 	uint8_t bank7[NCOMPARES];
@@ -263,7 +299,7 @@ bool CartDumper::isE0() {
 // 0xFE8 through 0xFEB selects which 256K RAM bank appears
 // 0xA00 through 0xFFF is fixed to the last 1.5K of ROM
 //////////////////////////////////////////////////
-bool CartDumper::isE7() {
+bool CartDumper::isE7(uint16_t ramSize) {
 	uint8_t bank0[NCOMPARES];
 	uint8_t bank1[NCOMPARES];
 	uint8_t bank7[NCOMPARES];
@@ -293,43 +329,43 @@ bool CartDumper::isE7() {
 	return isE7;
 }
 
-// untested, are there even any F4 commercial carts?
-bool CartDumper::isF4() {
+bool CartDumper::isF4(uint16_t ramSize) {
 	uint8_t bank0[NCOMPARES];
 	uint8_t bank1[NCOMPARES];
 	accessHotspot(0xFF4); // select bank 0
-	readNBytes(NULL, bank0, 256, NCOMPARES);
+	// ramSize * 2 because read/write addresses
+	readNBytes(NULL, bank0, ramSize*2, NCOMPARES);
 	accessHotspot(0xFF5); // select bank 1
-	readNBytes(NULL, bank1, 256, NCOMPARES);
+	readNBytes(NULL, bank1, ramSize*2, NCOMPARES);
 	bool isF4 = strncmp((char*)bank0, (char*)bank1, NCOMPARES) != 0;
 	return isF4;
 }
 
 // should be called after isF4, due to overlap
-bool CartDumper::isF6() {
+bool CartDumper::isF6(uint16_t ramSize) {
 	uint8_t bank0[NCOMPARES];
 	uint8_t bank1[NCOMPARES];
 	accessHotspot(0xFF6); // select bank 0
-	readNBytes(NULL, bank0, 256, NCOMPARES);
+	readNBytes(NULL, bank0, ramSize*2, NCOMPARES);
 	accessHotspot(0xFF7); // select bank 1
-	readNBytes(NULL, bank1, 256, NCOMPARES);
+	readNBytes(NULL, bank1, ramSize*2, NCOMPARES);
 	bool isF6 = strncmp((char*)bank0, (char*)bank1, NCOMPARES) != 0;
 	return isF6;
 }
 
 // should be called after isF6, due to overlap
-bool CartDumper::isF8() {
+bool CartDumper::isF8(uint16_t ramSize) {
 	uint8_t bank0[NCOMPARES];
 	uint8_t bank1[NCOMPARES];
 	accessHotspot(0xFF8); // select bank 0
-	readNBytes(NULL, bank0, 256, NCOMPARES);
+	readNBytes(NULL, bank0, ramSize*2, NCOMPARES);
 	accessHotspot(0xFF9); // select bank 1
-	readNBytes(NULL, bank1, 256, NCOMPARES);
+	readNBytes(NULL, bank1, ramSize*2, NCOMPARES);
 	bool isF8 = strncmp((char*)bank0, (char*)bank1, NCOMPARES) != 0;
 	return isF8;
 }
 
-bool CartDumper::isFE() {
+bool CartDumper::isFE(uint16_t ramSize) {
 	uint8_t bank0[NCOMPARES];
 	uint8_t bank1[NCOMPARES];
 
@@ -338,7 +374,7 @@ bool CartDumper::isFE() {
 		// de-select cart
 		digitalWrite(CS, LOW);
 
-		#ifndef ARDUINO
+		#ifdef RPI 
 		// reverse buffer to WRITE mode
 		digitalWrite(BUFDIR, HIGH);
 		#endif
@@ -354,23 +390,23 @@ bool CartDumper::isFE() {
 		digitalWrite(CS, HIGH);
 		pinMode(D5, INPUT);
 
-		#ifndef ARDUINO
+		#ifdef RPI
 		// restore buffer as READ mode
 		digitalWrite(BUFDIR, LOW);
 		#endif
 
-		readNBytes(NULL, i == 0 ? bank1 : bank0, 0, NCOMPARES);
+		readNBytes(NULL, i == 0 ? bank1 : bank0, ramSize*2, NCOMPARES);
 	}
 
 	bool isFE = strncmp((char*)bank0, (char*)bank1, NCOMPARES) != 0;
 	return isFE;
 }
 
-bool CartDumper::is2K() {
+bool CartDumper::is2K(uint16_t ramSize) {
 	uint8_t front[NCOMPARES];
 	uint8_t mirror[NCOMPARES];
-	readNBytes(NULL, front, 0, NCOMPARES);
-	readNBytes(NULL, mirror, 0x800, NCOMPARES);
+	readNBytes(NULL, front, ramSize*2, NCOMPARES);
+	readNBytes(NULL, mirror, 0x800 + (ramSize*2), NCOMPARES);
 	bool is2K = strncmp((char*)front, (char*)mirror, NCOMPARES) != 0;
 	return is2K;
 }

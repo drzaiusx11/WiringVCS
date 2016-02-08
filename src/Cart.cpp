@@ -1,6 +1,52 @@
 #include "Cart.h"
 #include "CartDumper.h"
 
+uint16_t Cart::getRAMSize() {
+	uint16_t size = 0;
+	uint8_t counter = 0;
+	uint8_t expected;
+	uint8_t actual;
+
+	// deselect chip, set data bus to write mode
+	CartDumper::setDataDir(OUTPUT);
+	digitalWrite(CS, LOW);
+
+	// try 128 size
+	for(counter = 0; counter < 128; counter++) {
+		CartDumper::writeData(counter, (uint16_t)counter);
+		expected = counter;
+		actual = CartDumper::readByte(NULL, counter + 128); 
+		if (expected != actual) {
+			break;
+		}
+	}
+
+	if (counter > 1) {
+		size = counter;
+	}
+	else {
+		// try 256 size
+		for(counter = 0; counter < 256; counter++) {
+			CartDumper::writeData(counter, counter);
+			expected = counter;
+			actual = CartDumper::readByte(NULL, counter + 256); 
+			if (expected != actual) {
+				break;
+			}
+		}
+
+		if (counter > 1) {
+			size = counter;
+		}	
+	}
+
+	// select chip, set data bus to read mode
+	CartDumper::setDataDir(INPUT);
+	digitalWrite(CS, HIGH);
+
+	return size;
+}
+
 uint8_t Cart::getBank(uint16_t address) {
 	return (uint8_t)(address / bankSize);
 }

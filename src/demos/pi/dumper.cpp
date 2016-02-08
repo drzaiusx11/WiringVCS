@@ -10,7 +10,11 @@ int main(void) {
 
 	Cart* cart = VCS.findCart();
 
-	printf("Found cart of type %s. Dumping to rom.bin\n", VCS.getMapperName(cart->mapper));
+	printf("Found cart of type %s\n", VCS.getMapperName(cart->mapper));
+	if (cart->ramSize > 0) {
+		printf("RAM: %d bytes\n", cart->ramSize);
+	}
+	printf("Dumping to rom.bin\n"); 
 
 	// array to save a rom segment in
 	uint8_t romSegment[NBYTES];

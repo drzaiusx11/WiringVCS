@@ -20,6 +20,9 @@ class Cart {
 	// overall size of cart
 	uint16_t size;
 
+	// size of RAM in cart
+	uint16_t ramSize;
+
 	// bank size in the cart
 	uint16_t bankSize;
 
@@ -41,6 +44,8 @@ class Cart {
 	// get the bank for a given address
 	virtual uint8_t getBank(uint16_t address);
 
+	static uint16_t getRAMSize();
+
 	// mapper type, eg M_F8,etc
 	Mapper mapper;
 
@@ -52,6 +57,7 @@ class Cart {
 		hotspotList(new uint16_t[hscnt]),
 		selectedBank(-1), // init to 'invalid' bank
 		bankAddress(0),
+		ramSize(Cart::getRAMSize()),
 		mapper(m) {}
 	~Cart() {}
 };
