@@ -1,5 +1,4 @@
 #include "CartDumper.h"
-#include <stdio.h>
 
 void CartDumper::setup() {
 	#ifdef RPI
@@ -307,7 +306,7 @@ bool CartDumper::isE0(uint16_t ramSize) {
 //////////////////////////////////////////////////
 bool CartDumper::isE7(uint16_t ramSize) {
 	uint8_t bank0[NCOMPARES];
-	uint8_t bank1[NCOMPARES];
+	uint8_t bank6[NCOMPARES];
 	uint8_t bank7[NCOMPARES];
 	uint8_t bank7Verify[NCOMPARES];
 
@@ -315,22 +314,22 @@ bool CartDumper::isE7(uint16_t ramSize) {
 	accessHotspot(0xFE0);
 
 	// read bank 0
-	readNBytes(NULL, bank0, 256, NCOMPARES);
+	readNBytes(NULL, bank0, 0, NCOMPARES);
 
 	// last 2k bank starts at 0x800, but that points to RAM
 	// so start at first non-ram address
 	readNBytes(NULL, bank7, 0xA00, NCOMPARES);
 
-	// put bank 1 into address 0 - 7FF
-	accessHotspot(0xFE1);
+	// put bank 6 into address 0 - 7FF
+	accessHotspot(0xFE6);
 
-	// read bank 1
-	readNBytes(NULL, bank1, 256, NCOMPARES);
+	// read bank 6
+	readNBytes(NULL, bank6, 0, NCOMPARES);
 
-	// in E0, the last 0xA00 - 0xFFF never changes
+	// in E7, the last 0xA00 - 0xFFF never changes
 	readNBytes(NULL, bank7Verify, 0xA00, NCOMPARES);
-  
-	bool isE7 = strncmp((char*)bank0, (char*)bank1, NCOMPARES) != 0 && !strncmp((char*)bank7, (char*)bank7Verify, NCOMPARES);  
+
+	bool isE7 = strncmp((char*)bank0, (char*)bank6, NCOMPARES) != 0 && !strncmp((char*)bank7, (char*)bank7Verify, NCOMPARES);  
   
 	return isE7;
 }
