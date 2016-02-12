@@ -7,42 +7,38 @@ uint16_t Cart::getRAMSize() {
 	uint8_t expected;
 	uint8_t actual;
 
-	// deselect chip, set data bus to write mode
-	CartDumper::setDataDir(OUTPUT);
-	digitalWrite(CS, LOW);
-
 	// try 128 size
 	for(counter = 0; counter < 128; counter++) {
+		CartDumper::setDataDir(OUTPUT);
 		CartDumper::writeData(counter, (uint16_t)counter);
 		expected = counter;
+		CartDumper::setDataDir(INPUT);
 		actual = CartDumper::readByte(NULL, counter + 128); 
 		if (expected != actual) {
 			break;
 		}
 	}
 
-	if (counter > 1) {
+	if (counter == 128) {
 		size = counter;
 	}
 	else {
 		// try 256 size
 		for(counter = 0; counter < 256; counter++) {
+			CartDumper::setDataDir(OUTPUT);
 			CartDumper::writeData(counter, counter);
 			expected = counter;
+			CartDumper::setDataDir(INPUT);
 			actual = CartDumper::readByte(NULL, counter + 256); 
 			if (expected != actual) {
 				break;
 			}
 		}
 
-		if (counter > 1) {
+		if (counter == 256) {
 			size = counter;
 		}	
 	}
-
-	// select chip, set data bus to read mode
-	CartDumper::setDataDir(INPUT);
-	digitalWrite(CS, HIGH);
 
 	return size;
 }
